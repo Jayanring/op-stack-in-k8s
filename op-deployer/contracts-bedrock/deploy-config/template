@@ -1,0 +1,57 @@
+{
+  "finalSystemOwner": "_ADMIN",
+  "portalGuardian": "_ADMIN",
+
+  "l1StartingBlockTag": "_BLOCKHASH",
+  "l1BlockTime": _L1_BlockTime,
+  "l1ChainID": _L1_ChainID,
+
+  "l2BlockTime": _L2_BlockTime,
+  "l2ChainID": _L2_ChainID,
+
+  "maxSequencerDrift": 600,
+  "sequencerWindowSize": 3600,
+  "channelTimeout": 300,
+
+  "p2pSequencerAddress": "_SEQUENCER",
+  "batchInboxAddress": "0xff00000000000000000000000000000000042069",
+  "batchSenderAddress": "_BATCHER",
+
+  "l2OutputOracleSubmissionInterval": 120,
+  "l2OutputOracleStartingBlockNumber": 0,
+  "l2OutputOracleStartingTimestamp": _TIMESTAMP,
+
+  "l2OutputOracleProposer": "_PROPOSER",
+  "l2OutputOracleChallenger": "_ADMIN",
+
+  "finalizationPeriodSeconds": 12,
+
+  "proxyAdminOwner": "_ADMIN",
+  "baseFeeVaultRecipient": "_ADMIN",
+  "l1FeeVaultRecipient": "_ADMIN",
+  "sequencerFeeVaultRecipient": "_ADMIN",
+
+  "baseFeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
+  "l1FeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
+  "sequencerFeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
+  "baseFeeVaultWithdrawalNetwork": 0,
+  "l1FeeVaultWithdrawalNetwork": 0,
+  "sequencerFeeVaultWithdrawalNetwork": 0,
+
+  "gasPriceOracleOverhead": 2100,
+  "gasPriceOracleScalar": 1000000,
+
+  "enableGovernance": true,
+  "governanceTokenSymbol": "OP",
+  "governanceTokenName": "Optimism",
+  "governanceTokenOwner": "_ADMIN",
+
+  "l2GenesisBlockGasLimit": "0x1c9c380",
+  "l2GenesisBlockBaseFeePerGas": "0x3b9aca00",
+  "l2GenesisRegolithTimeOffset": "0x0",
+
+  "eip1559Denominator": 50,
+  "eip1559Elasticity": 10,
+
+  "systemConfigStartBlock": 0
+}
