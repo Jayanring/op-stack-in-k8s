@@ -4,7 +4,7 @@ WORKDIR /deploy
 
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends git jq
-RUN pip install web3 python-dotenv 
+RUN pip install web3 python-dotenv
 
 COPY . /deploy/
 
