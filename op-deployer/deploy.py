@@ -5,7 +5,7 @@ import os
 from web3 import Web3
 import subprocess
 
-dotenv.load_dotenv(".env")
+dotenv.load_dotenv("./config/.env")
 
 
 def deploy_config_template():
@@ -30,6 +30,7 @@ def get_L1_latest_block():
 
 
 hash, number, timestamp = get_L1_latest_block()
+print(f"\nget start block: height: {number}, timestamp: {timestamp}, hash: {hash}")
 
 
 def update_deploy_config(config: str, hash, timestamp):
@@ -52,6 +53,8 @@ deploy_name = os.getenv("DEPLOYMENT_CONTEXT")
 
 with open(f"contracts-bedrock/deploy-config/{deploy_name}.json", "w") as file:
     file.write(new_config)
+print("\nupdate deploy config success")
+
 
 try:
     os.mkdir(f"contracts-bedrock/deployments/{deploy_name}")
@@ -61,20 +64,25 @@ except:
 url = os.getenv("ETH_RPC_URL")
 key = os.getenv("PRIVATE_KEY")
 
-
+print("\ndeploying rollup contracts...")
 deploy = f"cd contracts-bedrock;forge script scripts/Deploy.s.sol:Deploy --private-key {key} --broadcast --rpc-url {url};forge script scripts/Deploy.s.sol:Deploy --sig 'sync()' --private-key {key} --broadcast --rpc-url {url}"
 result = subprocess.run(
     deploy, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
 )
-print("\nDeploy Contracts Stdout:")
+print("Deploy Contracts Stdout:")
 print(result.stdout)
-print("returncode:", result.returncode)
+if result.returncode == 0:
+    print("deploy rollup contracts success")
+else:
+    print("deploy rollup contracts failed")
 
+
+print("\ngenerating L2 config...")
 generate_config = f"./op-node genesis l2 \
     --deploy-config ./contracts-bedrock/deploy-config/{deploy_name}.json \
     --deployment-dir ./contracts-bedrock/deployments/{deploy_name}/ \
-    --outfile.l2 genesis.json \
-    --outfile.rollup rollup.json \
+    --outfile.l2 ./config/genesis.json \
+    --outfile.rollup ./config/rollup.json \
     --l1-rpc {url}"
 result = subprocess.run(
     generate_config,
@@ -83,17 +91,20 @@ result = subprocess.run(
     stderr=subprocess.PIPE,
     text=True,
 )
-print("\nGenerate Config Stdout:")
+print("Generate Config Stdout:")
 print(result.stdout)
-print("returncode:", result.returncode)
+if result.returncode == 0:
+    print("generate L2 config success")
+else:
+    print("generate L2 config failed")
 
-result = subprocess.run(
-    "openssl rand -hex 32 > jwt.txt",
+subprocess.run(
+    f"echo $(cat deployments/{deploy_name}/L1StandardBridgeProxy.json | jq -r .address) > ./config/L1StandardBridgeProxy",
     shell=True,
-    stdout=subprocess.PIPE,
-    stderr=subprocess.PIPE,
     text=True,
 )
-print("\nGenerate jwt.txt Stdout:")
-print(result.stdout)
-print("returncode:", result.returncode)
+subprocess.run(
+    f"echo $(cat deployments/{deploy_name}/L2OutputOracleProxy.json | jq -r .address) > ./config/L2OutputOracleProxy",
+    shell=True,
+    text=True,
+)
