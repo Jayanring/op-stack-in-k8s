@@ -1,0 +1,24 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: l2-env
+data:
+  .env: |
+        # L1 info
+        export ETH_RPC_URL=
+        export L1_ChainID=
+        export L1_BlockTime=
+        export L1_RPC_KIND=basic
+
+        # L2 config
+        export L2_ChainID=
+        export L2_BlockTime=
+
+        # Accounts
+        export ADMIN=
+        export PRIVATE_KEY=
+        export SEQUENCER=
+        export SEQUENCER_KEY=
+        export BATCHER=
+        export BATCHER_KEY=

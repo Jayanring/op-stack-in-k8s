@@ -5,7 +5,7 @@ import os
 from web3 import Web3
 import subprocess
 
-dotenv.load_dotenv("./config/.env")
+dotenv.load_dotenv("/env/.env")
 
 
 def deploy_config_template():
@@ -49,7 +49,7 @@ def update_deploy_config(config: str, hash, timestamp):
 
 
 new_config = update_deploy_config(config, hash, timestamp)
-deploy_name = os.getenv("DEPLOYMENT_CONTEXT")
+deploy_name = "chain-cache"
 
 with open(f"contracts-bedrock/deploy-config/{deploy_name}.json", "w") as file:
     file.write(new_config)
@@ -69,42 +69,42 @@ deploy = f"cd contracts-bedrock;forge script scripts/Deploy.s.sol:Deploy --priva
 result = subprocess.run(
     deploy, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
 )
-print("Deploy Contracts Stdout:")
+print("\nDeploy Contracts Stdout:")
 print(result.stdout)
+print("\nDeploy Contracts Stderr:")
+print(result.stderr)
 if result.returncode == 0:
     print("deploy rollup contracts success")
 else:
     print("deploy rollup contracts failed")
 
-
-print("\ngenerating L2 config...")
-generate_config = f"./op-node genesis l2 \
-    --deploy-config ./contracts-bedrock/deploy-config/{deploy_name}.json \
-    --deployment-dir ./contracts-bedrock/deployments/{deploy_name}/ \
-    --outfile.l2 ./config/genesis.json \
-    --outfile.rollup ./config/rollup.json \
-    --l1-rpc {url}"
-result = subprocess.run(
-    generate_config,
-    shell=True,
-    stdout=subprocess.PIPE,
-    stderr=subprocess.PIPE,
-    text=True,
-)
-print("Generate Config Stdout:")
-print(result.stdout)
-if result.returncode == 0:
-    print("generate L2 config success")
-else:
-    print("generate L2 config failed")
-
 subprocess.run(
-    f"echo $(cat deployments/{deploy_name}/L1StandardBridgeProxy.json | jq -r .address) > ./config/L1StandardBridgeProxy",
+    f"echo $(cat ./contracts-bedrock/deployments/{deploy_name}/L1StandardBridgeProxy.json | jq -r .address) > ./L1StandardBridgeProxy",
     shell=True,
     text=True,
 )
 subprocess.run(
-    f"echo $(cat deployments/{deploy_name}/L2OutputOracleProxy.json | jq -r .address) > ./config/L2OutputOracleProxy",
+    f"echo $(cat ./contracts-bedrock/deployments/{deploy_name}/L2OutputOracleProxy.json | jq -r .address) > ./L2OutputOracleProxy",
+    shell=True,
+    text=True,
+)
+subprocess.run(
+    f"echo $ETH_RPC_URL > ./ETH_RPC_URL",
+    shell=True,
+    text=True,
+)
+subprocess.run(
+    f"echo $L2_ChainID > ./L2_ChainID",
+    shell=True,
+    text=True,
+)
+subprocess.run(
+    f"echo $SEQUENCER_KEY > ./SEQUENCER_KEY",
+    shell=True,
+    text=True,
+)
+subprocess.run(
+    f"echo $BATCHER_KEY > ./BATCHER_KEY",
     shell=True,
     text=True,
 )

@@ -1,0 +1,133 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: l2-sequencer
+spec:
+  replicas: 1
+  serviceName: ""
+  selector:
+    matchLabels:
+      app: l2-sequencer
+  template:
+    metadata:
+      labels:
+        app: l2-sequencer
+    spec:
+      volumes:
+        - persistentVolumeClaim:
+            claimName: l2-config-pvc
+          name: l2-config
+      initContainers:
+        - name: init-container
+          image: jayanring/op-geth
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "datadir: $(ls /datadir)";
+              if [ ! "$(ls -A /datadir)" ]; then
+                echo "init geth" && geth init --datadir=/datadir /config/genesis.json
+              fi
+          volumeMounts:
+            - mountPath: /config
+              name: l2-config
+            - mountPath: /datadir
+              name: datadir-sequencer
+      containers:
+        - name: op-geth
+          image: jayanring/op-geth
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              geth --datadir /datadir --http --http.corsdomain="*" --http.vhosts="*" --http.addr=0.0.0.0 \
+              --http.api=web3,debug,eth,txpool,net,engine --ws --ws.addr=0.0.0.0 --ws.port=8546 --ws.origins="*" \
+              --ws.api=debug,eth,txpool,net,engine --syncmode=full --gcmode=archive --authrpc.jwtsecret=/config/jwt.txt \
+              --networkid=$(cat /config/L2_ChainID) --authrpc.vhosts="*" --authrpc.addr=0.0.0.0 --authrpc.port=8551
+              
+          volumeMounts:
+            - mountPath: /config
+              name: l2-config
+            - mountPath: /datadir
+              name: datadir-sequencer
+          ports:
+            - containerPort: 8545
+              name: op-geth-rpc
+              protocol: TCP
+            - containerPort: 8551
+              name: authrpc
+              protocol: TCP
+            - containerPort: 30303
+              name: op-geth-p2p
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 8000m
+              memory: 16392Mi
+            requests:
+              cpu: 1000m
+              memory: 2048Mi
+        - name: op-node
+          image: jayanring/op-node
+          imagePullPolicy: Always
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              op-node --l2=http://localhost:8551 --l2.jwt-secret=/config/jwt.txt --sequencer.enabled --sequencer.l1-confs=3 \
+              --verifier.l1-confs=3 --rollup.config=/config/rollup.json --rpc.addr=0.0.0.0 --rpc.port=8547 --rpc.enable-admin \
+              --p2p.sequencer.key=$(cat /config/SEQUENCER_KEY) --l1=$(cat /config/ETH_RPC_URL) --l1.rpckind=basic --l2.engine-sync
+          volumeMounts:
+            - mountPath: /config
+              name: l2-config
+          ports:
+            - containerPort: 8547
+              name: op-node-rpc
+              protocol: TCP
+            - containerPort: 9222
+              name: op-node-p2p
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 8000m
+              memory: 16392Mi
+            requests:
+              cpu: 1000m
+              memory: 2048Mi
+        - name: op-batcher
+          image: jayanring/op-batcher
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              op-batcher --l2-eth-rpc=http://localhost:8545 --rollup-rpc=http://localhost:8547 --poll-interval=1s --sub-safety-margin=6 \
+              --num-confirmations=1 --safe-abort-nonce-too-low-count=3 --resubmission-timeout=30s --rpc.addr=0.0.0.0 --rpc.port=8548 \
+              --rpc.enable-admin --max-channel-duration=1 --l1-eth-rpc=$(cat /config/ETH_RPC_URL) --private-key=$(cat /config/BATCHER_KEY)
+          volumeMounts:
+            - mountPath: /config
+              name: l2-config
+          ports:
+            - containerPort: 8548
+              name: op-batcher-rpc
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 8000m
+              memory: 16392Mi
+            requests:
+              cpu: 1000m
+              memory: 2048Mi
+  podManagementPolicy: OrderedReady
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: datadir-sequencer
+    spec:
+      accessModes:
+      - ReadWriteMany
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: nas-client-provisioner
+      volumeMode: Filesystem
+            

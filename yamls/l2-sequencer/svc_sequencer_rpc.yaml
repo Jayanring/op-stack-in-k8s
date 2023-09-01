@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: l2-sequencer-p2p
+spec:
+  ports:
+  - name: geth-p2p
+    port: 30303
+    protocol: TCP
+    targetPort: 30303
+  - name: node-p2p
+    port: 9222
+    protocol: TCP
+    targetPort: 9222
+  selector:
+    app: l2-sequencer
+  type: ClusterIP
