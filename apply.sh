@@ -65,6 +65,8 @@ fi
 # 读取p2p信息并写入config中
 echo -e "\nread sequencer p2p info"
 
+sleep 5
+
 output=$(kubectl exec l2-sequencer-0 -c op-geth -n $NAME_SPACE -- geth --exec "admin.nodeInfo.enode" attach datadir/geth.ipc)
 output=$(echo $output | awk -F'[@:]' '{sub(/\/\//, "", $2); print $2}')
 echo "OP_GETH_P2P: $output"
