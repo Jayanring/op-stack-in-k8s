@@ -4,7 +4,6 @@
 source ./env.sh
 
 output=$(kubectl get pvc l2-config-pvc -n $NAME_SPACE -o name)
-echo output:$output
 if [ -z "$output" ]; then
     echo "l2-config-pvc not exist, start initiating"
 
@@ -65,14 +64,15 @@ fi
 
 # 读取p2p信息并写入config中
 echo -e "\nread sequencer p2p info"
-output=$(kubectl exec l2-sequencer-0 -c op-node -n $NAME_SPACE -- cat PeerID)
-echo "OP_NODE_P2P: $output"
-kubectl exec l2-test -c busybox -n $NAME_SPACE -- /bin/sh -c "echo $output > /config/OP_NODE_P2P"
 
 output=$(kubectl exec l2-sequencer-0 -c op-geth -n $NAME_SPACE -- geth --exec "admin.nodeInfo.enode" attach datadir/geth.ipc)
 output=$(echo $output | awk -F'[@:]' '{sub(/\/\//, "", $2); print $2}')
 echo "OP_GETH_P2P: $output"
 kubectl exec l2-test -c busybox -n $NAME_SPACE -- /bin/sh -c "echo $output > /config/OP_GETH_P2P"
+
+output=$(kubectl exec l2-sequencer-0 -c op-node -n $NAME_SPACE -- cat PeerID)
+echo "OP_NODE_P2P: $output"
+kubectl exec l2-test -c busybox -n $NAME_SPACE -- /bin/sh -c "echo $output > /config/OP_NODE_P2P"
 
 # 启动verifier
 echo -e "\nstart verifier"

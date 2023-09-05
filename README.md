@@ -15,3 +15,9 @@
 `./stop.sh`
 
 * This will not delete `pvc` , `svc` and `configMap`
+
+## clean
+
+`./clean.sh`
+
+* This will not delete `svc` and `configMap`
