@@ -3,6 +3,7 @@ kind: StatefulSet
 metadata:
   name: l2-verifier-explorer
 spec:
+  podManagementPolicy: OrderedReady
   replicas: 1
   selector:
     matchLabels:
@@ -13,25 +14,20 @@ spec:
       labels:
         app: l2-verifier-explorer
     spec:
-      volumes:
-      - configMap:
-          name: l2-explorer-scv
-        name: l2-explorer-scv
       containers:
-      - name: eth-postgres
+      - args:
+        - -c
+        - max_connections=200
+        env:
+        - name: POSTGRES_PASSWORD
+          value: '123456'
         image: docker.io/postgres:alpine3.18
         imagePullPolicy: IfNotPresent
-        args: ["-c", "max_connections=200"]
-        env: 
-        - name: POSTGRES_PASSWORD
-          value: "123456"
+        name: eth-postgres
         ports:
         - containerPort: 5432
           name: postgres
           protocol: TCP
-        volumeMounts:
-        - mountPath: /var/lib/pgsql
-          name: datadir-verifier-explorer
         resources:
           limits:
             cpu: 4000m
@@ -39,49 +35,59 @@ spec:
           requests:
             cpu: 1000m
             memory: 2048Mi
-      - name: eth-svc
+        volumeMounts:
+        - mountPath: /var/lib/pgsql
+          name: datadir-verifier-explorer
+      - command:
+        - ./smart-contract-verifier-server
+        - -c
+        - /opt/base.toml
         image: docker.io/citacloud/smart-contract-verifier:latest
         imagePullPolicy: IfNotPresent
-        command: ["./smart-contract-verifier-server", "-c", "/opt/base.toml"]
+        name: eth-svc
         ports:
         - containerPort: 8050
           name: svc
           protocol: TCP
-        volumeMounts:
-        - mountPath: /opt
-          name: l2-explorer-scv
         resources:
           limits:
             cpu: 2000m
             memory: 4098Mi
           requests:
             cpu: 1000m
-            memory: 2048Mi   
-      - name: eth-blockscout
-        image: docker.io/blockscout/blockscout:frontend-main
-        imagePullPolicy: IfNotPresent
-        command: ["/bin/sh", "-c", "bin/blockscout eval \"Elixir.Explorer.ReleaseTasks.create_and_migrate()\" && bin/blockscout start"]
+            memory: 2048Mi
+        volumeMounts:
+        - mountPath: /opt
+          name: l2-explorer-scv
+      - command:
+        - /bin/sh
+        - -c
+        - bin/blockscout eval "Elixir.Explorer.ReleaseTasks.create_and_migrate()"
+          && bin/blockscout start
         env:
         - name: ETHEREUM_JSONRPC_VARIANT
           value: geth
         - name: ETHEREUM_JSONRPC_HTTP_URL
           value: http://l2-verifier-rpc:8545
         - name: DATABASE_URL
-          value: "postgresql://postgres:123456@localhost:5432/blockscout?ssl=false"
+          value: postgresql://postgres:123456@localhost:5432/blockscout?ssl=false
         - name: ECTO_USE_SSL
-          value: "false"
+          value: 'false'
         - name: SECRET_KEY_BASE
           value: 56NtB48ear7+wMSf0IQuWDAAazhpb31qyc7GiyspBP2vh7t5zlCsF5QDv76chXeN
         - name: PORT
-          value: "4000"
+          value: '4000'
         - name: INDEXER_DISABLE_INTERNAL_TRANSACTIONS_FETCHER
-          value: "true"
+          value: 'true'
         - name: MICROSERVICE_SC_VERIFIER_ENABLED
-          value: "true"
+          value: 'true'
         - name: MICROSERVICE_SC_VERIFIER_URL
           value: http://localhost:8050/
         - name: COIN_NAME
           value: CTT
+        image: docker.io/blockscout/blockscout:frontend-main
+        imagePullPolicy: IfNotPresent
+        name: eth-blockscout
         ports:
         - containerPort: 4000
           name: blockscout
@@ -93,7 +99,10 @@ spec:
           requests:
             cpu: 2000m
             memory: 4098Mi
-  podManagementPolicy: OrderedReady
+      volumes:
+      - configMap:
+          name: l2-explorer-scv
+        name: l2-explorer-scv
   volumeClaimTemplates:
   - apiVersion: v1
     kind: PersistentVolumeClaim
@@ -101,10 +110,9 @@ spec:
       name: datadir-verifier-explorer
     spec:
       accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
       resources:
         requests:
           storage: 50Gi
       storageClassName: nas-client-provisioner
       volumeMode: Filesystem
-            

@@ -3,6 +3,7 @@ kind: Job
 metadata:
   name: l2-initer
 spec:
+  backoffLimit: 0
   manualSelector: true
   selector:
     matchLabels:
@@ -12,38 +13,74 @@ spec:
       labels:
         app: l2-initer
     spec:
-      restartPolicy: OnFailure
-      volumes:
-        - configMap:
-            name: l2-env
-          name: l2-env
-        - persistentVolumeClaim:
-            claimName: l2-config-pvc
+      containers:
+      - args:
+        - 'op-node genesis l2 \
+
+          --deploy-config /config/chain-cache.json \
+
+          --deployment-dir /config/chain-cache/ \
+
+          --outfile.l2 /config/genesis.json \
+
+          --outfile.rollup /config/rollup.json \
+
+          --l1-rpc $(cat /config/ETH_RPC_URL) && \
+
+          openssl rand -hex 32 > /config/jwt.txt && \
+
+          echo "jwt: $(cat /config/jwt.txt)"
+
+          '
+        command:
+        - /bin/sh
+        - -c
+        image: docker.io/jayanring/op-node
+        imagePullPolicy: Always
+        name: l2-op-node
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 4196Mi
+          requests:
+            cpu: 1000m
+            memory: 2048Mi
+        volumeMounts:
+        - mountPath: /config
           name: l2-config
       initContainers:
-      - name: l2-deploy
-        image: jayanring/op-deployer
+      - args:
+        - 'pwd &&
+
+          python -u deploy.py &&
+
+          echo "deploy complete!" &&
+
+          cp ./L1StandardBridgeProxy /config/ &&
+
+          cp ./L2OutputOracleProxy /config/ &&
+
+          cp ./ETH_RPC_URL /config/ &&
+
+          cp ./L2_ChainID /config/ &&
+
+          cp ./SEQUENCER_KEY /config/ &&
+
+          cp ./BATCHER_KEY /config/ &&
+
+          cp ./contracts-bedrock/deploy-config/chain-cache.json /config/ &&
+
+          cp -r ./contracts-bedrock/deployments/chain-cache/ /config/ &&
+
+          echo "cp config complete!"
+
+          '
+        command:
+        - /bin/sh
+        - -c
+        image: docker.io/jayanring/op-deployer
         imagePullPolicy: Always
-        command: ["/bin/sh", "-c"]
-        args:
-          - |
-            pwd &&
-            python -u deploy.py &&
-            echo "deploy complete!" &&
-            cp ./L1StandardBridgeProxy /config/ &&
-            cp ./L2OutputOracleProxy /config/ &&
-            cp ./ETH_RPC_URL /config/ &&
-            cp ./L2_ChainID /config/ &&
-            cp ./SEQUENCER_KEY /config/ &&
-            cp ./BATCHER_KEY /config/ &&
-            cp ./contracts-bedrock/deploy-config/chain-cache.json /config/ &&
-            cp -r ./contracts-bedrock/deployments/chain-cache/ /config/ &&
-            echo "cp config complete!"
-        volumeMounts:
-        - name: l2-config
-          mountPath: /config
-        - name: l2-env
-          mountPath: /env
+        name: l2-deploy
         resources:
           limits:
             cpu: 2000m
@@ -51,28 +88,16 @@ spec:
           requests:
             cpu: 1000m
             memory: 2048Mi
-      containers:
-      - name: l2-op-node
-        image: jayanring/op-node
-        imagePullPolicy: Always
-        command: ["/bin/sh", "-c"]
-        args:
-          - |
-            op-node genesis l2 \
-            --deploy-config /config/chain-cache.json \
-            --deployment-dir /config/chain-cache/ \
-            --outfile.l2 /config/genesis.json \
-            --outfile.rollup /config/rollup.json \
-            --l1-rpc $(cat /config/ETH_RPC_URL) && \
-            openssl rand -hex 32 > /config/jwt.txt && \
-            echo "jwt: $(cat /config/jwt.txt)"
         volumeMounts:
-        - name: l2-config
-          mountPath: /config
-        resources:
-          limits:
-            cpu: 2000m
-            memory: 4196Mi
-          requests:
-            cpu: 1000m
-            memory: 2048Mi
+        - mountPath: /config
+          name: l2-config
+        - mountPath: /env
+          name: l2-env
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          name: l2-env
+        name: l2-env
+      - name: l2-config
+        persistentVolumeClaim:
+          claimName: l2-config-pvc

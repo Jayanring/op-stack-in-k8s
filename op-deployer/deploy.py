@@ -42,14 +42,17 @@ def update_deploy_config(config: str, hash, timestamp):
         .replace("_ADMIN", os.getenv("ADMIN"))
         .replace("_SEQUENCER", os.getenv("SEQUENCER"))
         .replace("_BATCHER", os.getenv("BATCHER"))
-        .replace("_PROPOSER", os.getenv("PROPOSER"))
+        .replace("_PROPOSER", "0x1879C8B68c50A4D4eeC9852325d32B60B43f3FbD")
         .replace("_TIMESTAMP", timestamp)
         .replace("_BLOCKHASH", hash)
     )
 
 
 new_config = update_deploy_config(config, hash, timestamp)
-deploy_name = "chain-cache"
+
+os.environ['DEPLOYMENT_CONTEXT'] = 'chain-cache'
+deploy_name = os.getenv("DEPLOYMENT_CONTEXT")
+print(f"deploy_name: {deploy_name}")
 
 with open(f"contracts-bedrock/deploy-config/{deploy_name}.json", "w") as file:
     file.write(new_config)

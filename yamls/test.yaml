@@ -4,14 +4,11 @@ metadata:
   name: l2-test
 spec:
   volumes:
-    - configMap:
-        name: l2-env
-      name: l2-env
     - persistentVolumeClaim:
         claimName: l2-config-pvc
       name: l2-config
   containers:
-  - name: op-deployer
+  - name: busybox
     image: busybox
     command:
       - sleep
@@ -19,8 +16,6 @@ spec:
     volumeMounts:
     - name: l2-config
       mountPath: /config
-    - name: l2-env
-      mountPath: /env
     resources:
       limits:
         cpu: 8000m
