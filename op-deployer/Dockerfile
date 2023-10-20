@@ -10,4 +10,4 @@ COPY . /deploy/
 
 COPY --from=ghcr.io/foundry-rs/foundry:latest /usr/local/bin/forge /usr/bin/
 
-CMD [ "python", "deploy.py" ]
+CMD [ "./deploy.sh" ]

@@ -52,7 +52,7 @@ spec:
       - args:
         - 'pwd &&
 
-          python -u deploy.py &&
+          ./deploy.sh &&
 
           echo "deploy complete!" &&
 
