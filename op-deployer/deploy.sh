@@ -31,7 +31,8 @@ else
     echo "rollup sync contracts failed"
     exit 1
 fi
-sleep 3
+
+cd -
 
 echo $ETH_RPC_URL > ./ETH_RPC_URL
 
@@ -44,3 +45,5 @@ echo $BATCHER_KEY > ./BATCHER_KEY
 echo $(cat ./contracts-bedrock/deployments/chain-cache/L1StandardBridgeProxy.json | jq -r .address) > ./L1StandardBridgeProxy
 
 echo $(cat ./contracts-bedrock/deployments/chain-cache/L2OutputOracleProxy.json | jq -r .address) > ./L2OutputOracleProxy
+
+echo "op-deployer complete!"

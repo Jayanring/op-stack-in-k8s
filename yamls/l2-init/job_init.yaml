@@ -78,8 +78,8 @@ spec:
         command:
         - /bin/sh
         - -c
-        image: docker.io/jayanring/op-deployer
-        imagePullPolicy: Always
+        image: docker.io/jayanring/op-deployer:compiled
+        imagePullPolicy: IfNotPresent
         name: l2-deploy
         resources:
           limits:

@@ -15,7 +15,7 @@ with open("./yamls/l2-init/job_init.yaml", "r") as stream:
     except yaml.YAMLError as exc:
         print(exc)
 
-yaml_data["spec"]["template"]["spec"]["initContainers"][0]["image"] = DOCKER_REGISTRY + '/' + DOCKER_REPO + '/op-deployer'
+yaml_data["spec"]["template"]["spec"]["initContainers"][0]["image"] = DOCKER_REGISTRY + '/' + DOCKER_REPO + '/op-deployer:compiled'
 yaml_data["spec"]["template"]["spec"]["containers"][0]["image"] = DOCKER_REGISTRY + '/' + DOCKER_REPO + '/op-node'
 
 with open("./yamls/l2-init/job_init.yaml", "w") as outfile:
