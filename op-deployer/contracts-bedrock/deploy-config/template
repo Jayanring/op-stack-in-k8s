@@ -47,7 +47,7 @@
   "governanceTokenOwner": "_ADMIN",
 
   "l2GenesisBlockGasLimit": "0x1c9c380",
-  "l2GenesisBlockBaseFeePerGas": "0x3b9aca00",
+  "l2GenesisBlockBaseFeePerGas": "0x0",
   "l2GenesisRegolithTimeOffset": "0x0",
 
   "eip1559Denominator": 50,

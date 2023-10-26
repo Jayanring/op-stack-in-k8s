@@ -4,9 +4,9 @@ metadata:
   name: l2-config-pvc
 spec:
   accessModes:
-  - ReadWriteOnce
+  - ReadWriteMany
   resources:
     requests:
       storage: 100Mi
-  storageClassName: nas-client-provisioner
+  storageClassName: ''
   volumeMode: Filesystem

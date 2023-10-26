@@ -3,7 +3,6 @@
 import dotenv
 import os
 from web3 import Web3
-import subprocess
 
 dotenv.load_dotenv("/env/.env")
 

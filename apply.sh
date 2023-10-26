@@ -20,7 +20,7 @@ if [ -z "$output" ]; then
 
     # 等待Job完成
     echo "wait for completion..."
-    kubectl wait --for=condition=complete --timeout=600s job/l2-initer -n $NAME_SPACE
+    kubectl wait --for=condition=complete --timeout=3600s job/l2-initer -n $NAME_SPACE
     echo "deploy success"
 
     # 清理
@@ -36,7 +36,7 @@ output=$(kubectl get pod l2-test -n $NAME_SPACE -o name)
 if [ -z "$output" ]; then
     echo "l2-test not exist, create"
     kubectl apply -f yamls/test.yaml -n$NAME_SPACE >/dev/null
-    kubectl wait --for=condition=Ready --timeout=300s pod/l2-test -n $NAME_SPACE
+    kubectl wait --for=condition=Ready --timeout=3600s pod/l2-test -n $NAME_SPACE
 else
     echo "l2-test exist"
 fi
@@ -57,7 +57,7 @@ output=$(kubectl get pod l2-sequencer-0 -n $NAME_SPACE -o name)
 if [ -z "$output" ]; then
     echo "sequencer not exist, create"
     kubectl apply -f yamls/l2-sequencer/ -n $NAME_SPACE >/dev/null
-    kubectl wait --for=condition=Ready --timeout=300s pod/l2-sequencer-0 -n $NAME_SPACE
+    kubectl wait --for=condition=Ready --timeout=3600s pod/l2-sequencer-0 -n $NAME_SPACE
 else
     echo "sequencer exist"
 fi
@@ -82,7 +82,7 @@ output=$(kubectl get pod l2-verifier-0 -n $NAME_SPACE -o name)
 if [ -z "$output" ]; then
     echo "verifier not exist, create"
     kubectl apply -f yamls/l2-verifier/ -n $NAME_SPACE >/dev/null
-    kubectl wait --for=condition=Ready --timeout=300s pod/l2-verifier-0 -n $NAME_SPACE
+    kubectl wait --for=condition=Ready --timeout=3600s pod/l2-verifier-0 -n $NAME_SPACE
 else
     echo "verifier exist"
 fi
@@ -93,7 +93,7 @@ output=$(kubectl get pod l2-verifier-explorer-0 -n $NAME_SPACE -o name)
 if [ -z "$output" ]; then
     echo "explorer not exist, create"
     kubectl apply -f yamls/l2-explorer/ -n $NAME_SPACE >/dev/null
-    kubectl wait --for=condition=Ready --timeout=300s pod/l2-verifier-explorer-0 -n $NAME_SPACE
+    kubectl wait --for=condition=Ready --timeout=3600s pod/l2-verifier-explorer-0 -n $NAME_SPACE
 else
     echo "explorer exist"
 fi

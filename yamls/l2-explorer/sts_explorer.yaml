@@ -110,9 +110,9 @@ spec:
       name: datadir-verifier-explorer
     spec:
       accessModes:
-      - ReadWriteOnce
+      - ReadWriteMany
       resources:
         requests:
           storage: 50Gi
-      storageClassName: nas-client-provisioner
+      storageClassName: ''
       volumeMode: Filesystem

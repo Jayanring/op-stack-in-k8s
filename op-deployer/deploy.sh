@@ -14,7 +14,7 @@ echo -e "\ndeploying rollup contracts..."
 
 cd contracts-bedrock
 
-forge script scripts/Deploy.s.sol:Deploy --private-key $PRIVATE_KEY --broadcast --rpc-url $ETH_RPC_URL && \
+forge script scripts/Deploy.s.sol:Deploy --legacy --private-key $PRIVATE_KEY --broadcast --rpc-url $ETH_RPC_URL
 
 if [ $? -eq 0 ]; then
     echo "deploy rollup contracts success"
@@ -23,7 +23,7 @@ else
     exit 1
 fi
 
-forge script scripts/Deploy.s.sol:Deploy --sig 'sync()' --private-key $PRIVATE_KEY --broadcast --rpc-url $ETH_RPC_URL
+forge script scripts/Deploy.s.sol:Deploy --legacy --sig 'sync()' --private-key $PRIVATE_KEY --broadcast --rpc-url $ETH_RPC_URL
 
 if [ $? -eq 0 ]; then
     echo "rollup sync success"

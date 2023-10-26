@@ -6,6 +6,6 @@ unset SC
 unset NAME_SPACE
 
 export DOCKER_REGISTRY=docker.io
-export DOCKER_REPO=
+export DOCKER_REPO=jayanring
 export SC=
 export NAME_SPACE=

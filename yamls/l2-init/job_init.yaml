@@ -36,7 +36,7 @@ spec:
         - /bin/sh
         - -c
         image: docker.io/jayanring/op-node
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: l2-op-node
         resources:
           limits:
@@ -78,7 +78,7 @@ spec:
         command:
         - /bin/sh
         - -c
-        image: docker.io/jayanring/op-deployer:compiled
+        image: docker.io/jayanring/op-deployer:compiled-v0.7.0
         imagePullPolicy: IfNotPresent
         name: l2-deploy
         resources:

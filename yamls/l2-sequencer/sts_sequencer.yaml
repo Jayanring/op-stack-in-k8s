@@ -26,7 +26,7 @@ spec:
           \
 
           --networkid=$(cat /config/L2_ChainID) --authrpc.vhosts="*" --authrpc.addr=0.0.0.0
-          --authrpc.port=8551
+          --authrpc.port=8551 --txpool.pricelimit=0
 
           '
         command:
@@ -65,14 +65,14 @@ spec:
           --rpc.port=8547 --rpc.enable-admin \
 
           --p2p.sequencer.key=$(cat /config/SEQUENCER_KEY) --l1=$(cat /config/ETH_RPC_URL)
-          --l1.rpckind=basic --l2.engine-sync
+          --l1.rpckind=basic --l2.engine-sync --l1.trustrpc
 
           '
         command:
         - /bin/sh
         - -c
         image: docker.io/jayanring/op-node
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: op-node
         ports:
         - containerPort: 8547
@@ -149,9 +149,9 @@ spec:
       name: datadir-sequencer
     spec:
       accessModes:
-      - ReadWriteOnce
+      - ReadWriteMany
       resources:
         requests:
           storage: 10Gi
-      storageClassName: nas-client-provisioner
+      storageClassName: ''
       volumeMode: Filesystem
