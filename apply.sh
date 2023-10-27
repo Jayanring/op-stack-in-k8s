@@ -63,15 +63,35 @@ else
 fi
 
 # 读取p2p信息并写入config中
-echo -e "\nread sequencer p2p info"
+sleep 3
 
-sleep 5
-
+while true; do
+    kubectl exec l2-sequencer-0 -c op-geth -n $NAME_SPACE -- ls datadir/geth.ipc >/dev/null
+    exit_status=$?
+    if [ $exit_status -eq 0 ]; then
+        echo -e "\nread sequencer geth p2p info"
+        break
+    else
+        echo -e "\nread sequencer geth p2p info failed, retrying"
+        sleep 1
+    fi
+done
 output=$(kubectl exec l2-sequencer-0 -c op-geth -n $NAME_SPACE -- geth --exec "admin.nodeInfo.enode" attach datadir/geth.ipc)
 output=$(echo $output | awk -F'[@:]' '{sub(/\/\//, "", $2); print $2}')
 echo "OP_GETH_P2P: $output"
 kubectl exec l2-test -c busybox -n $NAME_SPACE -- /bin/sh -c "echo $output > /config/OP_GETH_P2P"
 
+while true; do
+    kubectl exec l2-sequencer-0 -c op-node -n $NAME_SPACE -- ls PeerID >/dev/null
+    exit_status=$?
+    if [ $exit_status -eq 0 ]; then
+        echo -e "\nread sequencer node p2p info"
+        break
+    else
+        echo -e "\nread sequencer node p2p info failed, retrying"
+        sleep 1
+    fi
+done
 output=$(kubectl exec l2-sequencer-0 -c op-node -n $NAME_SPACE -- cat PeerID)
 echo "OP_NODE_P2P: $output"
 kubectl exec l2-test -c busybox -n $NAME_SPACE -- /bin/sh -c "echo $output > /config/OP_NODE_P2P"

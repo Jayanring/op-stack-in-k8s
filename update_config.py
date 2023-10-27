@@ -32,8 +32,8 @@ with open("./yamls/l2-sequencer/sts_sequencer.yaml", "r") as stream:
     except yaml.YAMLError as exc:
         print(exc)
 
-yaml_data["spec"]["template"]["spec"]["initContainers"][0]["image"] = DOCKER_REGISTRY + '/' + DOCKER_REPO + '/op-geth-free:v0.2.0'
-yaml_data["spec"]["template"]["spec"]["containers"][0]["image"] = DOCKER_REGISTRY + '/' + DOCKER_REPO + '/op-geth-free:v0.2.0'
+yaml_data["spec"]["template"]["spec"]["initContainers"][0]["image"] = DOCKER_REGISTRY + '/' + DOCKER_REPO + '/op-geth-free:v0.3.0'
+yaml_data["spec"]["template"]["spec"]["containers"][0]["image"] = DOCKER_REGISTRY + '/' + DOCKER_REPO + '/op-geth-free:v0.3.0'
 yaml_data["spec"]["template"]["spec"]["containers"][1]["image"] = DOCKER_REGISTRY + '/' + DOCKER_REPO + '/op-node:v0.1.0'
 yaml_data["spec"]["template"]["spec"]["containers"][2]["image"] = DOCKER_REGISTRY + '/' + DOCKER_REPO + '/op-batcher:v0.1.0'
 yaml_data["spec"]["volumeClaimTemplates"][0]["spec"]["storageClassName"] = SC
@@ -52,8 +52,8 @@ with open("./yamls/l2-verifier/sts_verifier.yaml", "r") as stream:
     except yaml.YAMLError as exc:
         print(exc)
 
-yaml_data["spec"]["template"]["spec"]["initContainers"][0]["image"] = DOCKER_REGISTRY + '/' + DOCKER_REPO + '/op-geth-free:v0.2.0'
-yaml_data["spec"]["template"]["spec"]["containers"][0]["image"] = DOCKER_REGISTRY + '/' + DOCKER_REPO + '/op-geth-free:v0.2.0'
+yaml_data["spec"]["template"]["spec"]["initContainers"][0]["image"] = DOCKER_REGISTRY + '/' + DOCKER_REPO + '/op-geth-free:v0.3.0'
+yaml_data["spec"]["template"]["spec"]["containers"][0]["image"] = DOCKER_REGISTRY + '/' + DOCKER_REPO + '/op-geth-free:v0.3.0'
 yaml_data["spec"]["template"]["spec"]["containers"][1]["image"] = DOCKER_REGISTRY + '/' + DOCKER_REPO + '/op-node:v0.1.0'
 yaml_data["spec"]["volumeClaimTemplates"][0]["spec"]["storageClassName"] = SC
 
