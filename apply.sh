@@ -66,7 +66,7 @@ fi
 sleep 3
 
 while true; do
-    kubectl exec l2-sequencer-0 -c op-geth -n $NAME_SPACE -- ls datadir/geth.ipc >/dev/null
+    kubectl exec l2-sequencer-0 -c op-geth -n $NAME_SPACE -- geth --exec "admin.nodeInfo.enode" attach datadir/geth.ipc >/dev/null
     exit_status=$?
     if [ $exit_status -eq 0 ]; then
         echo -e "\nread sequencer geth p2p info"
